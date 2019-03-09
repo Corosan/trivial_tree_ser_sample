@@ -103,6 +103,8 @@ void tree::deserialize(std::istream& iss) {
         } else {
             auto data = parse_from_string(trim(line));
             if (queue.empty()) {
+                // Note that the method is safe for multiple calls while already having some loaded
+                // tree. '.reset()' will destroy the whole old tree correctly.
                 m_root.reset(new node{std::move(data), {}});
                 queue.push(m_root.get());
             } else {
@@ -145,8 +147,13 @@ void tree::print_impl(std::ostream& oss, int level, int initial_indent, node& th
     make_indent(oss, level, initial_indent);
 
     if (level)
+        // setw() influences to the next printed entity only, but setfill() - not
         oss << std::setw(s_indent_size) << std::setfill('-') << '+' << std::setfill(' ');
 
+    // It's better to use '\n' instead of std::endl every time when 'new-line' symbol is needed to
+    // be inserted because it doesn't force a stream to be flushed too frequently. Flushing can
+    // be executed at the end. This design decision can be changed if it's planned to print huge
+    // structures with megabytes of data.
     oss << the_node.m_data << '\n';
     for (auto& ch : the_node.m_children)
         print_impl(oss, level + 1, initial_indent, *ch);
