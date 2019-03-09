@@ -11,7 +11,9 @@ bool test() {
         "c1\n"
         "  10 11 1.1\n"
         "c2\n"
-        " aaa\n";
+        " aaa\n"
+        "10\n"
+        "10+1\n";
 
     tree t;
     std::istringstream iss(sample_tree);
@@ -26,13 +28,19 @@ bool test() {
         "c1\n"
         "10 11 1.1\n"
         "c2\n"
-        "aaa\n";
+        "aaa\n"
+        "10\n"
+        "10+1\n";
 
     if (oss.str() != test) {
         std::cout << "invalid serialization/deserializaion. Expected:\n"
             << test << "\nGot:\n" << oss.str() << std::endl;
         return false;
     }
+
+    std::cout << "tree dump:\n";
+    t.print(std::cout, 1);
+
     return true;
 }
 
